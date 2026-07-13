@@ -1,3 +1,9 @@
+import beedPlusImage from "../assets/images/beed_plus.png";
+import influenceIslandImage from "../assets/images/influence_island.png";
+import novalAwardsImage from "../assets/images/noval_awards.png";
+import oneDeskImage from "../assets/images/one_desk.png";
+import oneScreenImage from "../assets/images/one_screen.png";
+
 export interface Product {
   name: string;
   desc: string;
@@ -205,29 +211,29 @@ export const PRODUCTS: Product[] = [
     name: "OneScreen",
     desc: "Detachable Smart Portable TV",
     price: 1499999,
-    image: "/src/assets/images/one_screen.png",
+    image: oneScreenImage,
   },
   {
     name: "OneDesk",
     desc: "All-in-one Curved Screen PC",
     price: 1599999,
-    image: "/src/assets/images/one_desk.png",
+    image: oneDeskImage,
   },
 ];
 
 export const BRANDS: Brand[] = [
   {
-    image: "/src/assets/images/beed_plus.png",
+    image: beedPlusImage,
     linkText: "Beedplus.com",
     link: "https://beedplus.com",
   },
   {
-    image: "/src/assets/images/noval_awards.png",
+    image: novalAwardsImage,
     linkText: "Novalawards.com",
     link: "https://novalawards.com",
   },
   {
-    image: "/src/assets/images/influence_island.png",
+    image: influenceIslandImage,
     linkText: "Influenceisland.com",
     link: "https://influenceisland.com",
   },

@@ -8,10 +8,10 @@ import { BrandCarousel } from "../components/BrandCarousel";
 
 export default function Home() {
   return (
-    <div className="page" id="page-home">
+    <div className="page bg-[#F5F5F7]" id="page-home">
       <BrandCarousel />
 
-      <div className="flex flex-wrap gap-6 justify-center mt-8 px-6">
+      <div className="flex flex-wrap gap-6 justify-center mt-6 px-6">
         {PRODUCTS.map((product) => {
           return <ProductCard product={product} key={product.name} />;
         })}

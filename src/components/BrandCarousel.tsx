@@ -1,6 +1,6 @@
 const BrandCarousel = () => {
   return (
-    <div className="brands-banner-inner text-black py-2 pt-5">
+    <div className="brands-banner-inner bg-white text-black py-2 mt-4">
       <div className="brands-strip">
         <div className="brand-pill">
           <span className="w-1 h-1 rounded-full bg-black"></span>

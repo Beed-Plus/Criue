@@ -3,7 +3,7 @@ import { ChevronRightIcon } from "./icons";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
-    <div className="w-full lg:max-w-[390px] lg:flex-1 flex flex-col rounded-2xl shadow-[0_4px_28px_rgb(0,0,0,0.1)]">
+    <div className="w-full md:max-w-[390px] lg:flex-1 flex flex-col rounded-2xl shadow-[0_4px_28px_rgb(0,0,0,0.1)]">
       <div className="bg-black text-white p-4 rounded-t-2xl flex justify-between items-center">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold rounded-t-2xl">{product.name}</h2>
