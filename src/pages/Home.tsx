@@ -8,7 +8,7 @@ import { BrandCarousel } from "../components/BrandCarousel";
 
 export default function Home() {
   return (
-    <div className="page bg-[#F5F5F7]" id="page-home">
+    <div className=" bg-[#F5F5F7] pt-2" id="page-home">
       <BrandCarousel />
 
       <div className="flex flex-wrap gap-6 justify-center mt-6 px-6">

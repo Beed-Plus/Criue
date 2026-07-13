@@ -7,7 +7,7 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="bg-black text-white p-4 rounded-t-2xl flex justify-between items-center">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold rounded-t-2xl">{product.name}</h2>
-          <p className="text-sm font-normal">{product.desc}</p>
+          <p className="text-[clamp(0.875rem,0.5vw+0.65rem,1.25rem)] font-normal">{product.desc}</p>
           <p className="text-base font-semibold">
             {formatPrice(product.price)}
           </p>

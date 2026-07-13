@@ -1,4 +1,4 @@
-import beedPlusImage from "../assets/images/beed_plus.png";
+import beedPlusImage from "../assets/images/beed_plus1.png";
 import influenceIslandImage from "../assets/images/influence_island.png";
 import novalAwardsImage from "../assets/images/noval_awards.png";
 import oneDeskImage from "../assets/images/one_desk.png";
