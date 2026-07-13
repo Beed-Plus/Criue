@@ -3,8 +3,8 @@ import { ChevronRightIcon } from "./icons";
 
 const ProductCard = ({ product }: { product: Product }) => {
   return (
-    <div className="">
-      <img src={product.image} alt={product.name} />
+    <div className="w-full rounded-2xl md:max-w-[390px] p-0 shadow-[0_4px_28px_rgb(0,0,0,0.1)]">
+      <img src={product.image} alt={product.name} className="min-w-full" />
     </div>
   );
 };
