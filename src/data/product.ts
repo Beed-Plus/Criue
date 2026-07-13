@@ -1,8 +1,8 @@
 import beedPlusImage from "../assets/images/beed_plus1.png";
-import influenceIslandImage from "../assets/images/influence_island.png";
-import novalAwardsImage from "../assets/images/noval_awards.png";
-import oneDeskImage from "../assets/images/one_desk.png";
-import oneScreenImage from "../assets/images/one_screen.png";
+import influenceIslandImage from "../assets/images/influence_island1.png";
+import novalAwardsImage from "../assets/images/noval_awards1.png";
+import oneDeskImage from "../assets/images/one_desk1.png";
+import oneScreenImage from "../assets/images/one_screen1.png";
 
 export interface Product {
   name: string;

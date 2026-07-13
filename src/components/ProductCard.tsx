@@ -7,7 +7,9 @@ const ProductCard = ({ product }: { product: Product }) => {
       <div className="bg-black text-white p-4 rounded-t-2xl flex justify-between items-center">
         <div className="space-y-1">
           <h2 className="text-2xl font-bold rounded-t-2xl">{product.name}</h2>
-          <p className="text-[clamp(0.875rem,0.5vw+0.65rem,1.25rem)] font-normal">{product.desc}</p>
+          <p className="text-[clamp(0.875rem,0.5vw+0.65rem,1.25rem)] font-normal">
+            {product.desc}
+          </p>
           <p className="text-base font-semibold">
             {formatPrice(product.price)}
           </p>
@@ -17,8 +19,10 @@ const ProductCard = ({ product }: { product: Product }) => {
           <ChevronRightIcon />
         </div>
       </div>
-      <div className="min-h-[292px] rounded-b-2xl  flex items-center justify-center bg-white">
-        <img src={product.image} alt={product.name} className="" />
+      <div className="bg-white min-h-[292px]  rounded-b-2xl  flex items-center justify-center bg-white">
+        <div className=" max-w-[249px]">
+          <img src={product.image} alt={product.name} />
+        </div>
       </div>
     </div>
   );
