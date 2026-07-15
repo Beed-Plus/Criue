@@ -3,7 +3,7 @@ import { Brand } from "../data/product";
 
 const BrandCard = ({ brand }: { brand: Brand }) => {
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center md:max-w-[390px]">
       <div className="">
         <img src={brand.image} alt={brand.linkText} />
       </div>
