@@ -8,7 +8,7 @@ const BrandCard = ({ brand }: { brand: Brand }) => {
         <img src={brand.image} alt={brand.linkText} />
       </div>
       <Link to={brand.link}>
-        <p className="rounded-[18px] p-1.5 px-6 shadow-[0_4px_28px_rgb(0,0,0,0.1)] min-w-9.5 text-sm font-semibold mt-6">
+        <p className="rounded-[18px] p-1.5 px-6 shadow-[0_4px_28px_rgb(0,0,0,0.1)] min-w-9.5 text-base font-bold mt-6">
           {brand.linkText}
         </p>
       </Link>

@@ -11,7 +11,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Header />
-      <main className="bg-[#F5F5F7]">
+      <main>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/product/:name" element={<Product />} />

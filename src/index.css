@@ -138,18 +138,18 @@ button {
   justify-content: center;
 }
 .brand-pill-name {
-  font-size: 12.5px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 700;
 }
 .brand-pill-tag {
   font-size: 11px;
   color: #86868b;
 }
 .brands-banner-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #86868b;
   letter-spacing: 0.4px;
-  font-weight: 500;
+  font-weight: 700;
   margin-right: 24px;
   flex-shrink: 0;
   display: flex;

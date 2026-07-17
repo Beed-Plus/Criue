@@ -1,4 +1,3 @@
-export * from "./CriueLogo";
 export * from "./ChevronRightIcon";
 export * from "./InstagramIcon";
 export * from "./FacebookIcon";

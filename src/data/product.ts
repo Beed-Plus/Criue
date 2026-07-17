@@ -29,8 +29,23 @@ import oneDesk10 from "../assets/images/one_desk_10.png";
 import oneDesk11 from "../assets/images/one_desk_11.png";
 import oneDesk12 from "../assets/images/one_desk_12.png";
 import remote from "../assets/images/remote.png";
+import remote1 from "../assets/images/remote_1.png";
+import remote2 from "../assets/images/remote_2.png";
 import mouse from "../assets/images/ring_mouse.png";
+import ringMouse1 from "../assets/images/ring_mouse_1.png";
+import ringMouse2 from "../assets/images/ring_mouse_2.png";
+import ringMouse3 from "../assets/images/ring_mouse_3.png";
+import ringMouse4 from "../assets/images/ring_mouse_4.png";
+import ringMouse5 from "../assets/images/ring_mouse_5.png";
 import speaker from "../assets/images/speaker.png";
+import speaker1 from "../assets/images/speaker_1.png";
+import speaker2 from "../assets/images/speaker_2.png";
+import speaker3 from "../assets/images/speaker_3.png";
+import speaker4 from "../assets/images/speaker_4.png";
+import speaker5 from "../assets/images/speaker_5.png";
+import speaker6 from "../assets/images/speaker_6.png";
+import speaker7 from "../assets/images/speaker_7.png";
+import speaker8 from "../assets/images/speaker_8.png";
 
 export interface Product {
   name: string;
@@ -42,6 +57,7 @@ export interface Product {
   addOns?: {
     name: string;
     image: string;
+    gallery?: string[];
   }[];
   specs: {
     type: string;
@@ -96,14 +112,17 @@ export const PRODUCTS: Product[] = [
       {
         name: "Remote",
         image: remote,
+        gallery: [remote1, remote2],
       },
       {
         name: "Ring Mouse",
         image: mouse,
+        gallery: [ringMouse1, ringMouse2, ringMouse3, ringMouse4, ringMouse5],
       },
       {
         name: "Speaker",
         image: speaker,
+        gallery: [speaker1, speaker2, speaker3, speaker4, speaker5, speaker6, speaker7, speaker8],
       },
     ],
     specs: [

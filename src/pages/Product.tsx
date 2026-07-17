@@ -7,6 +7,7 @@ import { ShoppingBagIcon } from "../components/icons";
 import { BrandCarousel } from "../components/BrandCarousel";
 import Carousel from "../components/Carousel";
 import SpecGroup from "../components/SpecGroup";
+import { AddOnGallery } from "../components/AddOnGallery";
 
 export default function Product() {
   const params = useParams();
@@ -17,76 +18,56 @@ export default function Product() {
     return;
   }
   return (
-    <div className="bg-[#F5F5F7] " id="page-Product">
-        <div className="bg-black">
-      <div className="space-y-1 text-white px-6 pt-6 pb-8 bg-black md:max-w-5xl mx-auto">
-        <h2 className="text-[26px] md:text-3xl lg:text-4xl font-bold">{product.name}</h2>
-        <p className="text-[clamp(0.95rem,4vw-0.163rem,1.25rem)] md:text-lg lg:2xl font-medium">
-          {product.desc}
-        </p>
+    <div className="bg-[#F5F5F7] ">
+      <div className="bg-black">
+        <div className="space-y-1 text-white px-6 pt-6 pb-8 bg-black md:max-w-5xl mx-auto">
+          <h2 className="text-[26px] md:text-3xl lg:text-4xl font-bold">
+            {product.name}
+          </h2>
+          <p className="text-[clamp(0.95rem,4vw-0.163rem,1.25rem)] md:text-lg lg:2xl font-normal">
+            {product.desc}
+          </p>
 
-        <Carousel
-          images={product.images}
-          alt={product.name}
-          autoplay={product.images.length > 1 ? 5000 : 0}
-        />
+          <Carousel
+            images={product.images}
+            alt={product.name}
+            autoplay={product.images.length > 1 ? 5000 : 0}
+          />
 
-        <div className="flex flex-wrap items-center justify-between mt-6">
-          <p className="text-2xl md:text-3xl lg:text-4xl font-bold">{formatPrice(product.price)}</p>
-          <Link
-            to={"https://criue.bumpa.shop"}
-            rel="noopener noreferrer"
-            className="bg-[#009DFF] text-white rounded-[27px] py-2 px-6 shadow-[0_0px_24px_rgb(69,183,255,1)] min-w-32 lg:min-w-44 lg:py-3 text-base md:text-xl lg:text-2xl font-bold flex justify-center items-center gap-1"
-          >
-            <p className="text-white">Buy Now</p>
-          </Link>
+          <div className="flex flex-wrap items-center justify-between mt-6">
+            <p className="text-2xl md:text-3xl lg:text-4xl font-bold">
+              {formatPrice(product.price)}
+            </p>
+            <Link
+              to={"https://criue.bumpa.shop"}
+              rel="noopener noreferrer"
+              className="bg-[#009DFF] text-white rounded-[27px] py-2 px-6 shadow-[0_0px_24px_rgb(69,183,255,1)] min-w-32 lg:min-w-44 lg:py-3 text-base md:text-xl lg:text-2xl font-bold flex justify-center items-center gap-1"
+            >
+              <p className="text-white">Buy Now</p>
+            </Link>
+          </div>
         </div>
       </div>
-</div>
       {/* Add-Ons */}
       {product.addOns && product.addOns.length > 0 && (
         <div className="md:max-w-5xl mx-auto py-4 md:py-8">
           <h2 className="px-6 pb-2.5 text-xl md:text-2xl lg:text-3xl font-bold text-black">
             Add-Ons
           </h2>
-          <div role="list" className="flex flex-wrap gap-2 px-4">
-            {product.addOns.map((addon) => (
-              <div
-                key={addon.name}
-                role="listitem"
-                tabIndex={0}
-                className="flex flex-col items-center"
-              >
-                <div
-                  className="w-27 h-28 md:w-47 md:h-47 shadow[0_0_12px_rgb(0,0,0,0.1)]
-                          rounded-xl"
-                >
-                  <img
-                    src={addon.image}
-                    alt={addon.name}
-                    // className="w-full h-full object-contain"
-                  />
-                </div>
-                <span className="text-xs sm:text-sm md:text-base lg:text-xl font-medium  text-center leading-snug">
-                  {addon.name}
-                </span>
-              </div>
-            ))}
-          </div>
+          <AddOnGallery addOns={product.addOns} />
         </div>
       )}
 
       {/* Specs */}
       <div className=" bg-white">
-      <div className="px-6 py-8 bg-white md:max-w-5xl mx-auto">
-        <div className="flex flex-col gap-0">
-          {product.specs.map((group, i) => (
-            <SpecGroup key={i} group={group} />
-          ))}
+        <div className="px-6 py-8 bg-white md:max-w-5xl mx-auto">
+          <div className="flex flex-col gap-0">
+            {product.specs.map((group, i) => (
+              <SpecGroup key={i} group={group} />
+            ))}
+          </div>
         </div>
       </div>
-      </div>
-
 
       <div className="flex flex-col items-center gap-8 py-12">
         <Link
