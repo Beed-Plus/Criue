@@ -63,7 +63,7 @@ export function AddOnGallery({ addOns }: Props) {
               <img
                 src={addon.image}
                 alt={addon.name}
-                className="w-30 h-30 md:w-47 md:h-47 object-contain bg-white"
+                className="w-30 h-30 min-h-[180px] md:w-47 md:h-47 md:min-h-[188px] object-contain bg-white"
               />
             </button>
             <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium text-center leading-snug">
@@ -85,7 +85,7 @@ export function AddOnGallery({ addOns }: Props) {
             </button>
 
             <div className="flex h-full min-h-[70vh] flex-col items-center justify-center p-4">
-              <div className="relative flex w-full items-center justify-center">
+              <div className="relative flex w-full min-h-[420px] items-center justify-center">
                 <button
                   type="button"
                   onClick={showPrevious}
