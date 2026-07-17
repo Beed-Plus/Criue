@@ -18,13 +18,13 @@ export default function Product() {
     return;
   }
   return (
-    <div className="bg-[#F5F5F7] ">
+    <div className="bg-[#F5F5F7]">
       <div className="bg-black">
-        <div className="space-y-1 text-white px-6 pt-6 pb-8 bg-black md:max-w-5xl mx-auto">
-          <h2 className="text-[26px] md:text-3xl lg:text-4xl font-bold">
+        <div className="space-y-1 text-white pt-6 pb-8 bg-black md:max-w-8xl mx-auto">
+          <h2 className="text-[26px] md:text-3xl lg:text-4xl font-bold px-6 md:px-10 ">
             {product.name}
           </h2>
-          <p className="text-[clamp(0.95rem,4vw-0.163rem,1.25rem)] md:text-lg lg:2xl font-normal">
+          <p className="text-[clamp(0.95rem,4vw-0.163rem,1.25rem)] md:text-lg lg:2xl font-normal px-6 md:px-10 ">
             {product.desc}
           </p>
 
@@ -34,7 +34,7 @@ export default function Product() {
             autoplay={product.images.length > 1 ? 5000 : 0}
           />
 
-          <div className="flex flex-wrap items-center justify-between mt-6">
+          <div className="flex flex-wrap items-center max-md:justify-between gap-10 mt-6 px-6 md:px-10 ">
             <p className="text-2xl md:text-3xl lg:text-4xl font-bold">
               {formatPrice(product.price)}
             </p>
@@ -50,17 +50,19 @@ export default function Product() {
       </div>
       {/* Add-Ons */}
       {product.addOns && product.addOns.length > 0 && (
-        <div className="md:max-w-5xl mx-auto py-4 md:py-8">
-          <h2 className="px-6 pb-2.5 text-xl md:text-2xl lg:text-3xl font-bold text-black">
+        <div className="md:max-w-8xl mx-auto py-4 md:py-8 bg-[#F5F5F7]">
+          <h2 className="px-6 md:px-14 pb-2.5 text-xl md:text-2xl lg:text-3xl font-bold text-black">
             Add-Ons
           </h2>
-          <AddOnGallery addOns={product.addOns} />
+          <div className="px-6 md:px-10">
+            <AddOnGallery addOns={product.addOns} />
+          </div>
         </div>
       )}
 
       {/* Specs */}
-      <div className=" bg-white">
-        <div className="px-6 py-8 bg-white md:max-w-5xl mx-auto">
+      <div className="bg-[#F5F5F7]">
+        <div className="px-6 md:px-10 py-8 md:max-w-8xl mx-auto bg-white">
           <div className="flex flex-col gap-0">
             {product.specs.map((group, i) => (
               <SpecGroup key={i} group={group} />
@@ -69,7 +71,7 @@ export default function Product() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-8 py-12">
+      <div className="flex flex-col items-center gap-8 py-12 bg-[#F5F5F7] border-none">
         <Link
           to={"https://criue.bumpa.shop"}
           rel="noopener noreferrer"

@@ -118,7 +118,7 @@ export default function Carousel({
           images.map((src, i) => (
             <div
               key={i}
-              className="flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[400px] relative overflow-hidden rounded-2xl snap-center"
+              className="first:ml-4 md:first:ml-8 lg:first:ml-10 lg:last:mr-5 flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[400px] relative overflow-hidden rounded-2xl snap-center"
               aria-hidden={i !== index}
             >
               <img
