@@ -153,6 +153,30 @@ export default function Carousel({
         )}
       </div>
 
+      {/* Dots */}
+      {total > 1 && (
+        <div
+          className="flex items-center justify-center gap-1.5 mt-6"
+          role="tablist"
+          aria-label="Slide indicators"
+        >
+          {Array.from({ length: total }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              role="tab"
+              aria-selected={i === index}
+              aria-label={`Go to image ${i + 1}`}
+              className={`rounded-full border-none p-0 cursor-pointer transition-all duration-200
+                ${
+                  i === index
+                    ? "w-4 h-1.5 bg-white"
+                    : "w-1.5 h-1.5 bg-white/20 hover:bg-white/40"
+                }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

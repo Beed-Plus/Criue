@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Product } from "../data/product";
 
 type Props = {
@@ -27,6 +27,16 @@ export function AddOnGallery({ addOns }: Props) {
     setActiveAddOnIndex(null);
     setActiveImageIndex(0);
   };
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    if (activeAddOn) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [activeAddOn]);
 
   const showPrevious = () => {
     if (!gallery.length) return;
