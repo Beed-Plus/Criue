@@ -17,10 +17,14 @@ export default function Carousel({
   const total = Math.max(images.length, 1);
 
   const trackRef = useRef<HTMLDivElement>(null);
+  const previewTrackRef = useRef<HTMLDivElement>(null);
+  const previewScrollPending = useRef(false);
   const indexRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scrollEndTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInteracting = useRef(false);
+  const [touchIndex, setTouchIndex] = useState<number | null>(0);
+  const [previewImage, setPreviewImage] = useState(false);
 
   useEffect(() => {
     indexRef.current = index;
@@ -46,6 +50,26 @@ export default function Carousel({
   const pauseAutoplay = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
+
+  const showPreview = (index: number) => {
+    previewScrollPending.current = true;
+    setTouchIndex(index);
+    setPreviewImage(true);
+  };
+
+  useEffect(() => {
+    if (!previewImage || !previewScrollPending.current || touchIndex === null) return;
+    const track = previewTrackRef.current;
+    if (!track) return;
+
+    requestAnimationFrame(() => {
+      const width = track.clientWidth;
+      if (width) {
+        track.scrollTo({ left: width * touchIndex, behavior: "auto" });
+      }
+      previewScrollPending.current = false;
+    });
+  }, [previewImage, touchIndex]);
 
   const resumeAutoplay = useCallback(() => {
     if (!autoplay || total <= 1 || isInteracting.current) return;
@@ -116,9 +140,10 @@ export default function Carousel({
       >
         {images.length > 0 ? (
           images.map((src, i) => (
-            <div
+            <button
               key={i}
-              className="first:ml-4 md:first:ml-8 lg:first:ml-10 lg:last:mr-5 flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[400px] relative overflow-hidden rounded-2xl snap-center"
+              onClick={() => showPreview(i)}
+              className="first:ml-4 md:first:ml-8 lg:first:ml-10 lg:last:mr-5 flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[365px] relative overflow-hidden rounded-2xl snap-center"
               aria-hidden={i !== index}
             >
               <img
@@ -127,7 +152,7 @@ export default function Carousel({
                 draggable={false}
                 className="w-full h-full"
               />
-            </div>
+            </button>
           ))
         ) : (
           <div className="flex-none w-full min-h-[260px] max-h-[340px] flex items-center justify-center bg-[#141414] snap-center">
@@ -175,6 +200,83 @@ export default function Carousel({
                 }`}
             />
           ))}
+        </div>
+      )}
+
+      {previewImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black py-4">
+          <div className="w-full max-w-8xl max-h-[95vh] overflow-hidden rounded-3xl bg-black">
+            <button
+              type="button"
+              onClick={() => setPreviewImage(false)}
+              className="absolute right-6 top-6 z-20 rounded-full bg-black/80 px-3 py-2 text-sm font-semibold text-white hover:bg-black"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 13L7 7L13 13M13 1L6.99886 7L1 1"
+                  stroke="white"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+
+            <div className="flex h-full min-h-[65vh] flex-col mt-10 items-center justify-center bg-black">
+              <div
+                ref={previewTrackRef}
+                onScroll={() => {
+                  if (!previewTrackRef.current) return;
+                  const width = previewTrackRef.current.clientWidth;
+                  const index = Math.round(previewTrackRef.current.scrollLeft / width);
+                  if (index !== touchIndex) {
+                    setTouchIndex(index);
+                  }
+                }}
+                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {images.map((src, index) => (
+                  <div
+                    key={src}
+                    className="min-w-[100vw] md:max-w-[80vw] flex items-center justify-center snap-center"
+                  >
+                    <img
+                      src={src}
+                      alt={`${alt} preview ${index + 1}`}
+                      className="h-[60vh]  md:h-[70vh] w-full md:w-[80vw] max-w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                {images.map((src, index) => (
+                  <button
+                    key={src}
+                    type="button"
+                    onClick={() => setTouchIndex(index)}
+                    className={`h-12 w-12 overflow-hidden rounded-xl border-2 ${
+                      index === touchIndex
+                        ? "border-[#009DFF]"
+                        : "border-transparent"
+                    }`}
+                  >
+                    <img
+                      src={src}
+                      alt={`${alt} thumbnail ${index + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

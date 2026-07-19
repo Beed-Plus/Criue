@@ -83,7 +83,7 @@ export function AddOnGallery({ addOns }: Props) {
               <img
                 src={addon.image}
                 alt={addon.name}
-                className="w-47 h-47 max-sm:w-40 max-sm:h-40 md:min-h-[188px] bg-white"
+                className="sm:w-47 sm:h-47 max-sm:w-30 max-sm:h-30 md:min-h-[188px] bg-white"
               />
             </button>
             <span className="text-sm sm:text-base md:text-lg lg:text-xl font-medium text-center leading-snug">
