@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;900&display=swap');
 
 @font-face {
   font-family: "CustomFont";
@@ -35,8 +35,9 @@
 
 @theme {
   --font-sans:
-    "CustomFont", "Poppins", -apple-system, "SF Pro Display", "SF Pro Text", "Inter",
-    "Helvetica Neue", Arial, sans-serif;
+    "CustomFont", "Poppins", -apple-system, "SF Pro Display", "SF Pro Text",
+    "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-poppins: "Poppins", "Inter", "Helvetica Neue", Arial, sans-serif;
 }
 
 :root {
@@ -113,7 +114,7 @@ body::-webkit-scrollbar {
 
 .font-poppins-black {
   font-family: "Poppins", sans-serif;
-  font-weight: 900;
+  font-weight: 900 !important;
 }
 
 /* BRANDS */

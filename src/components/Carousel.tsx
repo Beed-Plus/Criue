@@ -246,7 +246,7 @@ export default function Carousel({
 
       {previewImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black py-4">
-          <div className="w-full max-w-8xl max-h-[95vh] overflow-hidden rounded-3xl bg-black">
+          <div className="w-full max-w-8xl overflow-visible rounded-3xl bg-black">
             <button
               type="button"
               onClick={() => setPreviewImage(false)}
@@ -269,7 +269,7 @@ export default function Carousel({
               </svg>
             </button>
 
-            <div className="flex h-full min-h-[65vh] flex-col mt-10 items-center justify-center bg-black">
+            <div className="flex min-h-[65vh] flex-col mt-10 items-center justify-center bg-black overflow-auto">
               <div
                 ref={previewTrackRef}
                 onScroll={() => {
@@ -284,18 +284,18 @@ export default function Carousel({
                 onPointerMove={handlePreviewPointerMove}
                 onPointerUp={handlePreviewPointerUp}
                 onPointerCancel={handlePreviewPointerUp}
-                style={{ touchAction: "pan-x" }}
-                className="flex h-[78vh] gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                style={{ touchAction: "pan-x pinch-zoom" }}
+                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {images.map((src, index) => (
                   <div
                     key={src}
-                    className="min-w-[100vw] h-full flex items-center justify-center snap-center overflow-hidden"
+                    className="min-w-screen flex items-center justify-center snap-center overflow-visible"
                   >
                     <img
                       src={src}
                       alt={`${alt} preview ${index + 1}`}
-                      className="max-h-full w-auto max-w-full object-contain transition-transform duration-200 ease-in-out"
+                      className="w-auto max-w-none object-contain transition-transform duration-200 ease-in-out"
                       style={{ transform: `scale(${previewScale})` }}
                     />
                   </div>

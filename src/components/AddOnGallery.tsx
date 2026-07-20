@@ -95,7 +95,7 @@ export function AddOnGallery({ addOns }: Props) {
 
       {activeAddOn && gallery.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black py-4">
-          <div className="w-full max-w-8xl max-h-[95vh] overflow-hidden rounded-3xl bg-black">
+          <div className="w-full max-w-8xl overflow-visible rounded-3xl bg-black">
             <button
               type="button"
               onClick={closeViewer}
@@ -129,17 +129,17 @@ export function AddOnGallery({ addOns }: Props) {
                     setActiveImageIndex(index);
                   }
                 }}
-                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {gallery.map((src, index) => (
                   <div
                     key={src}
-                    className="min-w-[100vw] flex items-center justify-center snap-center"
+                    className="min-w-screen flex items-start justify-center snap-center overflow-visible"
                   >
                     <img
                       src={src}
                       alt={`${activeAddOn.name} preview ${index + 1}`}
-                      className="max-h-[80vh] md:max-h[75vh] w-auto max-w-full object-cover"
+                      className="w-auto max-w-none object-contain"
                     />
                   </div>
                 ))}
