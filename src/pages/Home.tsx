@@ -29,7 +29,7 @@ export default function Home() {
       </div>
 
       <div className="bg-white py-10 ">
-        <h3 className="text-2xl lg:text-[32px] max-sm:max-w-[259px] mx-auto text-center font-poppins-black">
+        <h3 className="text-2xl lg:text-[32px] max-sm:max-w-[259px] mx-auto text-center font-poppins font-black">
           Creating and Curating the Future
         </h3>
 

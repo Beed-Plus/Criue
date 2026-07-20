@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { Product } from "../data/product";
 
 type Props = {
@@ -19,10 +19,54 @@ export function AddOnGallery({ addOns }: Props) {
       : activeAddOn?.image
         ? [activeAddOn.image]
         : [];
+  const [previewScale, setPreviewScale] = useState(1);
+  const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchState = useRef<{ distance: number; scale: number } | null>(null);
+
+  const getDistance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
 
   const openViewer = (index: number) => {
+    setPreviewScale(1);
+    activePointers.current.clear();
+    pinchState.current = null;
     setActiveAddOnIndex(index);
     setActiveImageIndex(0);
+  };
+
+  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    if (activePointers.current.size === 2) {
+      const points = Array.from(activePointers.current.values());
+      pinchState.current = {
+        distance: getDistance(points[0], points[1]),
+        scale: previewScale,
+      };
+    }
+  };
+
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if (!pinchState.current || activePointers.current.size !== 2) return;
+    if (!activePointers.current.has(e.pointerId)) return;
+
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const points = Array.from(activePointers.current.values());
+    if (points.length !== 2) return;
+
+    const distance = getDistance(points[0], points[1]);
+    const scale = Math.min(
+      Math.max((distance / pinchState.current.distance) * pinchState.current.scale, 1),
+      3,
+    );
+    setPreviewScale(scale);
+  };
+
+  const handlePointerUp = (e: PointerEvent<HTMLDivElement>) => {
+    activePointers.current.delete(e.pointerId);
+    pinchState.current = activePointers.current.size === 2 ? pinchState.current : null;
+    e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
   const closeViewer = () => {
@@ -94,8 +138,8 @@ export function AddOnGallery({ addOns }: Props) {
       </div>
 
       {activeAddOn && gallery.length > 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black py-4">
-          <div className="w-full max-w-8xl overflow-visible rounded-3xl bg-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black overflow-hidden">
+          <div className="relative w-full h-full max-w-8xl rounded-3xl bg-black overflow-hidden">
             <button
               type="button"
               onClick={closeViewer}
@@ -118,7 +162,7 @@ export function AddOnGallery({ addOns }: Props) {
               </svg>
             </button>
 
-            <div className="flex h-full min-h-[70vh] flex-col items-center justify-center bg-black">
+            <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-black">
               <div
                 ref={trackRef}
                 onScroll={() => {
@@ -129,6 +173,11 @@ export function AddOnGallery({ addOns }: Props) {
                     setActiveImageIndex(index);
                   }
                 }}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+                style={{ touchAction: "pan-x pinch-zoom" }}
                 className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {gallery.map((src, index) => (
@@ -139,7 +188,8 @@ export function AddOnGallery({ addOns }: Props) {
                     <img
                       src={src}
                       alt={`${activeAddOn.name} preview ${index + 1}`}
-                      className="w-auto max-w-none object-contain"
+                      className="w-auto max-w-none object-contain transition-transform duration-200 ease-in-out"
+                      style={{ transform: `scale(${previewScale})` }}
                     />
                   </div>
                 ))}

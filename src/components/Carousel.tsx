@@ -112,6 +112,16 @@ export default function Carousel({
     });
   }, [previewImage, touchIndex]);
 
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    if (previewImage) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [previewImage]);
+
   const resumeAutoplay = useCallback(() => {
     if (!autoplay || total <= 1 || isInteracting.current) return;
     pauseAutoplay();
@@ -245,8 +255,8 @@ export default function Carousel({
       )}
 
       {previewImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black py-4">
-          <div className="w-full max-w-8xl overflow-visible rounded-3xl bg-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black overflow-hidden">
+          <div className="relative w-full h-full max-w-8xl bg-black rounded-3xl">
             <button
               type="button"
               onClick={() => setPreviewImage(false)}
@@ -269,7 +279,7 @@ export default function Carousel({
               </svg>
             </button>
 
-            <div className="flex min-h-[65vh] flex-col mt-10 items-center justify-center bg-black overflow-auto">
+            <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-black">
               <div
                 ref={previewTrackRef}
                 onScroll={() => {

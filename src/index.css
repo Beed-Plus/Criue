@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;900&display=swap');
 
 @font-face {
   font-family: "CustomFont";
@@ -35,7 +34,7 @@
 
 @theme {
   --font-sans:
-    "CustomFont", "Poppins", -apple-system, "SF Pro Display", "SF Pro Text",
+    "CustomFont", -apple-system, "SF Pro Display", "SF Pro Text",
     "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-poppins: "Poppins", "Inter", "Helvetica Neue", Arial, sans-serif;
 }
