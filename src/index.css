@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
 @font-face {
   font-family: "CustomFont";
@@ -34,7 +35,7 @@
 
 @theme {
   --font-sans:
-    "CustomFont", -apple-system, "SF Pro Display", "SF Pro Text", "Inter",
+    "CustomFont", "Poppins", -apple-system, "SF Pro Display", "SF Pro Text", "Inter",
     "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -69,6 +70,7 @@ body {
   margin: 0;
   font-family:
     "CustomFont",
+    "Poppins",
     -apple-system,
     "SF Pro Display",
     "SF Pro Text",
@@ -102,6 +104,16 @@ body::-webkit-scrollbar {
 ::selection {
   background: var(--black);
   color: var(--white);
+}
+
+.font-poppins-semibold {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+}
+
+.font-poppins-black {
+  font-family: "Poppins", sans-serif;
+  font-weight: 900;
 }
 
 /* BRANDS */
@@ -146,8 +158,9 @@ body::-webkit-scrollbar {
   justify-content: center;
 }
 .brand-pill-name {
+  font-family: "Poppins", sans-serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .brand-pill-tag {
   font-size: 11px;

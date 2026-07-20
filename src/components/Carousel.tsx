@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 
 interface CarouselProps {
   images: string[];
@@ -25,6 +25,9 @@ export default function Carousel({
   const isInteracting = useRef(false);
   const [touchIndex, setTouchIndex] = useState<number | null>(0);
   const [previewImage, setPreviewImage] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
+  const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchState = useRef<{ distance: number; scale: number } | null>(null);
 
   useEffect(() => {
     indexRef.current = index;
@@ -53,8 +56,46 @@ export default function Carousel({
 
   const showPreview = (index: number) => {
     previewScrollPending.current = true;
+    setPreviewScale(1);
+    activePointers.current.clear();
+    pinchState.current = null;
     setTouchIndex(index);
     setPreviewImage(true);
+  };
+
+  const getDistance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
+
+  const handlePreviewPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    e.currentTarget.setPointerCapture(e.pointerId);
+
+    if (activePointers.current.size === 2) {
+      const points = Array.from(activePointers.current.values());
+      pinchState.current = {
+        distance: getDistance(points[0], points[1]),
+        scale: previewScale,
+      };
+    }
+  };
+
+  const handlePreviewPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!pinchState.current || activePointers.current.size !== 2) return;
+    if (!activePointers.current.has(e.pointerId)) return;
+
+    activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const points = Array.from(activePointers.current.values());
+    if (points.length !== 2) return;
+
+    const distance = getDistance(points[0], points[1]);
+    const scale = Math.min(Math.max((distance / pinchState.current.distance) * pinchState.current.scale, 1), 3);
+    setPreviewScale(scale);
+  };
+
+  const handlePreviewPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    activePointers.current.delete(e.pointerId);
+    pinchState.current = activePointers.current.size === 2 ? pinchState.current : null;
+    e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
   useEffect(() => {
@@ -239,40 +280,25 @@ export default function Carousel({
                     setTouchIndex(index);
                   }
                 }}
-                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                onPointerDown={handlePreviewPointerDown}
+                onPointerMove={handlePreviewPointerMove}
+                onPointerUp={handlePreviewPointerUp}
+                onPointerCancel={handlePreviewPointerUp}
+                style={{ touchAction: "pan-x" }}
+                className="flex h-[78vh] gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {images.map((src, index) => (
                   <div
                     key={src}
-                    className="min-w-[100vw] md:max-w-[80vw] flex items-center justify-center snap-center"
+                    className="min-w-[100vw] h-full flex items-center justify-center snap-center overflow-hidden"
                   >
                     <img
                       src={src}
                       alt={`${alt} preview ${index + 1}`}
-                      className="h-[60vh]  md:h-[70vh] w-full md:w-[80vw] max-w-full"
+                      className="max-h-full w-auto max-w-full object-contain transition-transform duration-200 ease-in-out"
+                      style={{ transform: `scale(${previewScale})` }}
                     />
                   </div>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                {images.map((src, index) => (
-                  <button
-                    key={src}
-                    type="button"
-                    onClick={() => setTouchIndex(index)}
-                    className={`h-12 w-12 overflow-hidden rounded-xl border-2 ${
-                      index === touchIndex
-                        ? "border-[#009DFF]"
-                        : "border-transparent"
-                    }`}
-                  >
-                    <img
-                      src={src}
-                      alt={`${alt} thumbnail ${index + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                  </button>
                 ))}
               </div>
             </div>
