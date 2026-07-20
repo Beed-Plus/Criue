@@ -443,7 +443,7 @@ export default function Carousel({
                 src={src}
                 alt={`${alt} — view ${i + 1}`}
                 draggable={false}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
               />
             </button>
           ))
