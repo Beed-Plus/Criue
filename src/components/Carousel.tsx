@@ -7,6 +7,7 @@ interface CarouselProps {
 }
 
 const GAP_PX = 12; // matches gap-3
+const MAX_SCALE = 3;
 
 export default function Carousel({
   images = [],
@@ -26,11 +27,42 @@ export default function Carousel({
   const [touchIndex, setTouchIndex] = useState<number | null>(0);
   const [previewImage, setPreviewImage] = useState(false);
   const [previewScale, setPreviewScale] = useState(1);
+  const [previewOffset, setPreviewOffset] = useState({ x: 0, y: 0 });
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchState = useRef<{ distance: number; scale: number } | null>(null);
+  const dragState = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startOffsetX: number;
+    startOffsetY: number;
+  } | null>(null);
+  const previewImageRefs = useRef<Map<number, HTMLImageElement>>(new Map());
   const lastTouchTap = useRef(0);
 
-  const togglePreviewScale = () => setPreviewScale((current) => (current === 1 ? 2 : 1));
+  const resetZoom = () => {
+    pinchState.current = null;
+    dragState.current = null;
+    setPreviewScale(1);
+    setPreviewOffset({ x: 0, y: 0 });
+  };
+
+  const clampOffset = (offset: { x: number; y: number }, scale: number, imgIndex: number) => {
+    const img = previewImageRefs.current.get(imgIndex);
+    if (!img || scale <= 1) return { x: 0, y: 0 };
+    const maxX = (img.offsetWidth * (scale - 1)) / 2;
+    const maxY = (img.offsetHeight * (scale - 1)) / 2;
+    return {
+      x: Math.min(Math.max(offset.x, -maxX), maxX),
+      y: Math.min(Math.max(offset.y, -maxY), maxY),
+    };
+  };
+
+  const togglePreviewScale = () => {
+    setPreviewScale((current) => (current === 1 ? 2 : 1));
+    setPreviewOffset({ x: 0, y: 0 });
+    dragState.current = null;
+  };
 
   const handlePreviewImageTouchEnd = (e: TouchEvent<HTMLImageElement>) => {
     const now = Date.now();
@@ -71,9 +103,11 @@ export default function Carousel({
 
   const showPreview = (index: number) => {
     previewScrollPending.current = true;
-    setPreviewScale(1);
     activePointers.current.clear();
     pinchState.current = null;
+    dragState.current = null;
+    setPreviewScale(1);
+    setPreviewOffset({ x: 0, y: 0 });
     setTouchIndex(index);
     setPreviewImage(true);
   };
@@ -87,32 +121,99 @@ export default function Carousel({
 
     if (activePointers.current.size === 2) {
       e.preventDefault();
+      dragState.current = null;
       const points = Array.from(activePointers.current.values());
       pinchState.current = {
         distance: getDistance(points[0], points[1]),
         scale: previewScale,
       };
+    } else if (activePointers.current.size === 1 && previewScale > 1) {
+      dragState.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        startOffsetX: previewOffset.x,
+        startOffsetY: previewOffset.y,
+      };
     }
   };
 
   const handlePreviewPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!pinchState.current || activePointers.current.size !== 2) return;
     if (!activePointers.current.has(e.pointerId)) return;
-
-    e.preventDefault();
     activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    const points = Array.from(activePointers.current.values());
-    if (points.length !== 2) return;
 
-    const distance = getDistance(points[0], points[1]);
-    const scale = Math.min(Math.max((distance / pinchState.current.distance) * pinchState.current.scale, 1), 3);
-    setPreviewScale(scale);
+    // Two fingers down: pinch-to-zoom
+    if (activePointers.current.size === 2 && pinchState.current) {
+      e.preventDefault();
+      const points = Array.from(activePointers.current.values());
+      const distance = getDistance(points[0], points[1]);
+      const rawScale = (distance / pinchState.current.distance) * pinchState.current.scale;
+      const scale = Math.min(Math.max(rawScale, 1), MAX_SCALE);
+      setPreviewScale(scale);
+      if (touchIndex !== null) {
+        setPreviewOffset((current) => clampOffset(current, scale, touchIndex));
+      }
+      return;
+    }
+
+    // One finger, already zoomed in: pan around
+    if (
+      dragState.current &&
+      dragState.current.pointerId === e.pointerId &&
+      previewScale > 1 &&
+      touchIndex !== null
+    ) {
+      e.preventDefault();
+      const dx = e.clientX - dragState.current.startX;
+      const dy = e.clientY - dragState.current.startY;
+      setPreviewOffset(
+        clampOffset(
+          {
+            x: dragState.current.startOffsetX + dx,
+            y: dragState.current.startOffsetY + dy,
+          },
+          previewScale,
+          touchIndex,
+        ),
+      );
+    }
   };
 
   const handlePreviewPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     activePointers.current.delete(e.pointerId);
-    pinchState.current = activePointers.current.size === 2 ? pinchState.current : null;
-    e.currentTarget.releasePointerCapture(e.pointerId);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // pointer may not have an active capture; safe to ignore
+    }
+
+    if (dragState.current?.pointerId === e.pointerId) {
+      dragState.current = null;
+    }
+
+    if (activePointers.current.size === 2) {
+      // still pinching with the remaining two pointers
+      return;
+    }
+
+    pinchState.current = null;
+
+    if (activePointers.current.size === 1 && previewScale > 1) {
+      // hand off from pinch (or from a lifted second finger) into a pan,
+      // anchored on whichever pointer is still down
+      const [remainingId, point] = Array.from(activePointers.current.entries())[0];
+      dragState.current = {
+        pointerId: remainingId,
+        startX: point.x,
+        startY: point.y,
+        startOffsetX: previewOffset.x,
+        startOffsetY: previewOffset.y,
+      };
+    }
+
+    if (previewScale <= 1) {
+      setPreviewOffset({ x: 0, y: 0 });
+    }
   };
 
   useEffect(() => {
@@ -128,6 +229,13 @@ export default function Carousel({
       previewScrollPending.current = false;
     });
   }, [previewImage, touchIndex]);
+
+  // Reset zoom/pan whenever the visible preview slide changes (swipe),
+  // so you never land on a new image already zoomed in on the wrong spot.
+  useEffect(() => {
+    if (!previewImage) return;
+    resetZoom();
+  }, [touchIndex, previewImage]);
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -300,7 +408,7 @@ export default function Carousel({
               <div
                 ref={previewTrackRef}
                 onScroll={() => {
-                  if (!previewTrackRef.current) return;
+                  if (!previewTrackRef.current || previewScale > 1) return;
                   const width = previewTrackRef.current.clientWidth;
                   const index = Math.round(previewTrackRef.current.scrollLeft / width);
                   if (index !== touchIndex) {
@@ -312,20 +420,27 @@ export default function Carousel({
                 onPointerUp={handlePreviewPointerUp}
                 onPointerCancel={handlePreviewPointerUp}
                 onPointerLeave={handlePreviewPointerUp}
-                style={{ touchAction: "pan-x" }}
+                style={{ touchAction: previewScale > 1 ? "none" : "pan-x" }}
                 className="flex h-full gap-4 w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
-                {images.map((src, index) => (
+                {images.map((src, imgIndex) => (
                   <div
                     key={src}
                     className="min-w-screen h-full flex items-center justify-center snap-center overflow-hidden bg-black"
                   >
                     <img
+                      ref={(el) => {
+                        if (el) previewImageRefs.current.set(imgIndex, el);
+                        else previewImageRefs.current.delete(imgIndex);
+                      }}
                       src={src}
-                      alt={`${alt} preview ${index + 1}`}
+                      alt={`${alt} preview ${imgIndex + 1}`}
                       className="h-full w-auto max-w-none object-contain"
                       style={{
-                        transform: `scale(${previewScale})`,
+                        transform:
+                          imgIndex === touchIndex
+                            ? `translate(${previewOffset.x}px, ${previewOffset.y}px) scale(${previewScale})`
+                            : undefined,
                         transformOrigin: "center center",
                         backgroundColor: "black",
                         willChange: "transform",
