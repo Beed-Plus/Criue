@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type TouchEvent } from "react";
 
 interface CarouselProps {
   images: string[];
@@ -28,6 +28,21 @@ export default function Carousel({
   const [previewScale, setPreviewScale] = useState(1);
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchState = useRef<{ distance: number; scale: number } | null>(null);
+  const lastTouchTap = useRef(0);
+
+  const togglePreviewScale = () => setPreviewScale((current) => (current === 1 ? 2 : 1));
+
+  const handlePreviewImageTouchEnd = (e: TouchEvent<HTMLImageElement>) => {
+    const now = Date.now();
+    if (now - lastTouchTap.current < 300) {
+      e.preventDefault();
+      togglePreviewScale();
+      lastTouchTap.current = 0;
+      return;
+    }
+
+    lastTouchTap.current = now;
+  };
 
   useEffect(() => {
     indexRef.current = index;
@@ -71,6 +86,7 @@ export default function Carousel({
     e.currentTarget.setPointerCapture(e.pointerId);
 
     if (activePointers.current.size === 2) {
+      e.preventDefault();
       const points = Array.from(activePointers.current.values());
       pinchState.current = {
         distance: getDistance(points[0], points[1]),
@@ -83,6 +99,7 @@ export default function Carousel({
     if (!pinchState.current || activePointers.current.size !== 2) return;
     if (!activePointers.current.has(e.pointerId)) return;
 
+    e.preventDefault();
     activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const points = Array.from(activePointers.current.values());
     if (points.length !== 2) return;
@@ -104,9 +121,9 @@ export default function Carousel({
     if (!track) return;
 
     requestAnimationFrame(() => {
-      const width = track.clientWidth;
-      if (width) {
-        track.scrollTo({ left: width * touchIndex, behavior: "auto" });
+      const slide = track.children[touchIndex] as HTMLElement | undefined;
+      if (slide) {
+        slide.scrollIntoView({ behavior: "auto", block: "nearest", inline: "start" });
       }
       previewScrollPending.current = false;
     });
@@ -194,7 +211,7 @@ export default function Carousel({
             <button
               key={i}
               onClick={() => showPreview(i)}
-              className="first:ml-4 md:first:ml-8 lg:first:ml-10 lg:last:mr-5 flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[365px] relative overflow-hidden rounded-2xl snap-center"
+              className="first:ml-4 md:first:ml-8 lg:first:ml-10 lg:last:mr-5 flex-none w-[95%] max-w-[327px] min-h-[365px] max-h-[400px] relative overflow-hidden rounded-2xl snap-center"
               aria-hidden={i !== index}
             >
               <img
@@ -294,19 +311,28 @@ export default function Carousel({
                 onPointerMove={handlePreviewPointerMove}
                 onPointerUp={handlePreviewPointerUp}
                 onPointerCancel={handlePreviewPointerUp}
-                style={{ touchAction: "pan-x pinch-zoom" }}
-                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x scrollbar-none [&::-webkit-scrollbar]:hidden"
+                onPointerLeave={handlePreviewPointerUp}
+                style={{ touchAction: "pan-x" }}
+                className="flex h-full gap-4 w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {images.map((src, index) => (
                   <div
                     key={src}
-                    className="min-w-screen flex items-center justify-center snap-center overflow-visible"
+                    className="min-w-screen h-full flex items-center justify-center snap-center overflow-hidden bg-black"
                   >
                     <img
                       src={src}
                       alt={`${alt} preview ${index + 1}`}
-                      className="w-auto max-w-none object-contain transition-transform duration-200 ease-in-out"
-                      style={{ transform: `scale(${previewScale})` }}
+                      className="h-full w-auto max-w-none object-contain"
+                      style={{
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: "center center",
+                        backgroundColor: "black",
+                        willChange: "transform",
+                        touchAction: "manipulation",
+                      }}
+                      onDoubleClick={togglePreviewScale}
+                      onTouchEnd={handlePreviewImageTouchEnd}
                     />
                   </div>
                 ))}

@@ -28,7 +28,7 @@ export default function Home() {
         </Link>
       </div>
 
-      <div className="bg-white py-10 ">
+      <div className="bg-white pb-10 pt-6 ">
         <h3 className="text-2xl lg:text-[32px] max-sm:max-w-[259px] mx-auto text-center font-poppins font-bold">
           Creating and Curating the Future
         </h3>

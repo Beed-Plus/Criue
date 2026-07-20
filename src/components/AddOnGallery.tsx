@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent, type TouchEvent } from "react";
 import type { Product } from "../data/product";
 
 type Props = {
@@ -22,6 +22,21 @@ export function AddOnGallery({ addOns }: Props) {
   const [previewScale, setPreviewScale] = useState(1);
   const activePointers = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchState = useRef<{ distance: number; scale: number } | null>(null);
+  const lastTouchTap = useRef(0);
+
+  const togglePreviewScale = () => setPreviewScale((current) => (current === 1 ? 2 : 1));
+
+  const handlePreviewImageTouchEnd = (e: TouchEvent<HTMLImageElement>) => {
+    const now = Date.now();
+    if (now - lastTouchTap.current < 300) {
+      e.preventDefault();
+      togglePreviewScale();
+      lastTouchTap.current = 0;
+      return;
+    }
+
+    lastTouchTap.current = now;
+  };
 
   const getDistance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
     Math.hypot(a.x - b.x, a.y - b.y);
@@ -39,6 +54,7 @@ export function AddOnGallery({ addOns }: Props) {
     e.currentTarget.setPointerCapture(e.pointerId);
 
     if (activePointers.current.size === 2) {
+      e.preventDefault();
       const points = Array.from(activePointers.current.values());
       pinchState.current = {
         distance: getDistance(points[0], points[1]),
@@ -51,6 +67,7 @@ export function AddOnGallery({ addOns }: Props) {
     if (!pinchState.current || activePointers.current.size !== 2) return;
     if (!activePointers.current.has(e.pointerId)) return;
 
+    e.preventDefault();
     activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const points = Array.from(activePointers.current.values());
     if (points.length !== 2) return;
@@ -70,6 +87,7 @@ export function AddOnGallery({ addOns }: Props) {
   };
 
   const closeViewer = () => {
+    setPreviewScale(1);
     setActiveAddOnIndex(null);
   };
 
@@ -177,19 +195,28 @@ export function AddOnGallery({ addOns }: Props) {
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
                 onPointerCancel={handlePointerUp}
-                style={{ touchAction: "pan-x pinch-zoom" }}
-                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory touch-pan-x scrollbar-none [&::-webkit-scrollbar]:hidden"
+                onPointerLeave={handlePointerUp}
+                style={{ touchAction: "pan-x" }}
+                className="flex gap-4 w-full overflow-x-auto snap-x snap-mandatory scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {gallery.map((src, index) => (
                   <div
                     key={src}
-                    className="min-w-screen flex items-start justify-center snap-center overflow-visible"
+                    className="min-w-screen flex items-start justify-center snap-center overflow-hidden bg-black"
                   >
                     <img
                       src={src}
                       alt={`${activeAddOn.name} preview ${index + 1}`}
-                      className="w-auto max-w-none object-contain transition-transform duration-200 ease-in-out"
-                      style={{ transform: `scale(${previewScale})` }}
+                      className="w-auto max-w-none object-contain"
+                      style={{
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: "center center",
+                        backgroundColor: "black",
+                        willChange: "transform",
+                        touchAction: "manipulation",
+                      }}
+                      onDoubleClick={togglePreviewScale}
+                      onTouchEnd={handlePreviewImageTouchEnd}
                     />
                   </div>
                 ))}
