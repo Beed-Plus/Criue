@@ -383,7 +383,7 @@ export function AddOnGallery({ addOns }: Props) {
                       i === activeImageIndex ? "border-[#009DFF]" : "border-transparent opacity-60"
                     }`}
                   >
-                    <img src={src} alt={`${activeAddOn.name} thumbnail ${i + 1}`} className="h-full w-full object-cover" />
+                    <img src={src} alt={`${activeAddOn.name} thumbnail ${i + 1}`} className="h-full w-full" />
                   </button>
                 ))}
               </div>
