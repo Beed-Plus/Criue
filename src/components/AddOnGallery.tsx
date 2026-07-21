@@ -10,7 +10,8 @@ const SWIPE_THRESHOLD = 50;
 const DOUBLE_TAP_MS = 280;
 const ZOOM_IN_SCALE = 2.5;
 
-const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.min(Math.max(v, lo), hi);
 
 const dist2 = (a: { x: number; y: number }, b: { x: number; y: number }) =>
   Math.hypot(a.x - b.x, a.y - b.y);
@@ -23,19 +24,24 @@ export function AddOnGallery({ addOns }: Props) {
 
   const activeAddOnIndexRef = useRef<number | null>(null);
   const activeImageIndexRef = useRef(0);
-  useEffect(() => { activeAddOnIndexRef.current = activeAddOnIndex; }, [activeAddOnIndex]);
-  useEffect(() => { activeImageIndexRef.current = activeImageIndex; }, [activeImageIndex]);
+  useEffect(() => {
+    activeAddOnIndexRef.current = activeAddOnIndex;
+  }, [activeAddOnIndex]);
+  useEffect(() => {
+    activeImageIndexRef.current = activeImageIndex;
+  }, [activeImageIndex]);
 
   const activeAddOn =
     activeAddOnIndex !== null && addOns ? addOns[activeAddOnIndex] : undefined;
-  const gallery =
-    activeAddOn?.gallery?.length
-      ? activeAddOn.gallery
-      : activeAddOn?.image
-        ? [activeAddOn.image]
-        : [];
+  const gallery = activeAddOn?.gallery?.length
+    ? activeAddOn.gallery
+    : activeAddOn?.image
+      ? [activeAddOn.image]
+      : [];
   const galleryRef = useRef<string[]>([]);
-  useEffect(() => { galleryRef.current = gallery; }, [gallery]);
+  useEffect(() => {
+    galleryRef.current = gallery;
+  }, [gallery]);
 
   // ── transform state — refs drive DOM directly, React state only gates mode ─
   const scaleRef = useRef(1);
@@ -64,14 +70,17 @@ export function AddOnGallery({ addOns }: Props) {
     });
   }, [applyTransform]);
 
-  const clampOffset = useCallback((ox: number, oy: number, s: number, imgIdx: number) => {
-    if (s <= 1) return { x: 0, y: 0 };
-    const img = imgRefs.current.get(imgIdx);
-    if (!img) return { x: ox, y: oy };
-    const maxX = (img.offsetWidth  * (s - 1)) / 2;
-    const maxY = (img.offsetHeight * (s - 1)) / 2;
-    return { x: clamp(ox, -maxX, maxX), y: clamp(oy, -maxY, maxY) };
-  }, []);
+  const clampOffset = useCallback(
+    (ox: number, oy: number, s: number, imgIdx: number) => {
+      if (s <= 1) return { x: 0, y: 0 };
+      const img = imgRefs.current.get(imgIdx);
+      if (!img) return { x: ox, y: oy };
+      const maxX = (img.offsetWidth * (s - 1)) / 2;
+      const maxY = (img.offsetHeight * (s - 1)) / 2;
+      return { x: clamp(ox, -maxX, maxX), y: clamp(oy, -maxY, maxY) };
+    },
+    [],
+  );
 
   const resetZoom = useCallback((imgIdx?: number) => {
     scaleRef.current = 1;
@@ -81,48 +90,57 @@ export function AddOnGallery({ addOns }: Props) {
     if (img) img.style.transform = "";
   }, []);
 
-  const zoomTo = useCallback((targetScale: number, cx?: number, cy?: number) => {
-    const idx = activeImageIndexRef.current;
-    const img = imgRefs.current.get(idx);
-    if (!img) return;
+  const zoomTo = useCallback(
+    (targetScale: number, cx?: number, cy?: number) => {
+      const idx = activeImageIndexRef.current;
+      const img = imgRefs.current.get(idx);
+      if (!img) return;
 
-    const s = clamp(targetScale, 1, MAX_SCALE);
-    let ox = 0, oy = 0;
+      const s = clamp(targetScale, 1, MAX_SCALE);
+      let ox = 0,
+        oy = 0;
 
-    if (s > 1 && cx !== undefined && cy !== undefined) {
-      const rect = img.getBoundingClientRect();
-      const localX = cx - (rect.left + rect.width  / 2);
-      const localY = cy - (rect.top  + rect.height / 2);
-      ox = -localX * (s - 1);
-      oy = -localY * (s - 1);
-    }
+      if (s > 1 && cx !== undefined && cy !== undefined) {
+        const rect = img.getBoundingClientRect();
+        const localX = cx - (rect.left + rect.width / 2);
+        const localY = cy - (rect.top + rect.height / 2);
+        ox = -localX * (s - 1);
+        oy = -localY * (s - 1);
+      }
 
-    const clamped = clampOffset(ox, oy, s, idx);
-    scaleRef.current = s;
-    offsetRef.current = clamped;
-    setScaleState(s);
-    img.style.transform =
-      s <= 1 ? "" : `translate(${clamped.x}px, ${clamped.y}px) scale(${s})`;
-  }, [clampOffset]);
+      const clamped = clampOffset(ox, oy, s, idx);
+      scaleRef.current = s;
+      offsetRef.current = clamped;
+      setScaleState(s);
+      img.style.transform =
+        s <= 1 ? "" : `translate(${clamped.x}px, ${clamped.y}px) scale(${s})`;
+    },
+    [clampOffset],
+  );
 
   // ── pointer gesture tracking ───────────────────────────────────────────────
   const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
 
   const pinchAnchor = useRef<{
-    distance: number; scale: number;
-    midX: number; midY: number;
-    offsetX: number; offsetY: number;
+    distance: number;
+    scale: number;
+    midX: number;
+    midY: number;
+    offsetX: number;
+    offsetY: number;
   } | null>(null);
 
   const panAnchor = useRef<{
     pointerId: number;
-    startX: number; startY: number;
-    startOffsetX: number; startOffsetY: number;
+    startX: number;
+    startY: number;
+    startOffsetX: number;
+    startOffsetY: number;
   } | null>(null);
 
   const swipeAnchor = useRef<{ startX: number } | null>(null);
   const lastTapTime = useRef(0);
-  const lastTapPos  = useRef({ x: 0, y: 0 });
+  const lastTapPos = useRef({ x: 0, y: 0 });
 
   const openViewer = (index: number) => {
     pointers.current.clear();
@@ -152,7 +170,9 @@ export function AddOnGallery({ addOns }: Props) {
   useEffect(() => {
     const original = document.body.style.overflow;
     if (activeAddOn) document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = original; };
+    return () => {
+      document.body.style.overflow = original;
+    };
   }, [activeAddOn]);
 
   // preload all add-on images
@@ -187,7 +207,8 @@ export function AddOnGallery({ addOns }: Props) {
       pinchAnchor.current = {
         distance: dist2(pts[0], pts[1]),
         scale: scaleRef.current,
-        midX: mx, midY: my,
+        midX: mx,
+        midY: my,
         offsetX: offsetRef.current.x,
         offsetY: offsetRef.current.y,
       };
@@ -196,7 +217,8 @@ export function AddOnGallery({ addOns }: Props) {
       if (scaleRef.current > 1) {
         panAnchor.current = {
           pointerId: e.pointerId,
-          startX: e.clientX, startY: e.clientY,
+          startX: e.clientX,
+          startY: e.clientY,
           startOffsetX: offsetRef.current.x,
           startOffsetY: offsetRef.current.y,
         };
@@ -209,125 +231,154 @@ export function AddOnGallery({ addOns }: Props) {
   }, []);
 
   // ── pointer move ───────────────────────────────────────────────────────────
-  const onPointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (!pointers.current.has(e.pointerId)) return;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const onPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!pointers.current.has(e.pointerId)) return;
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-    // pinch
-    if (pointers.current.size === 2 && pinchAnchor.current) {
-      const pts = Array.from(pointers.current.values());
-      const d = dist2(pts[0], pts[1]);
-      const rawScale = (d / pinchAnchor.current.distance) * pinchAnchor.current.scale;
-      const newScale = clamp(rawScale, 1, MAX_SCALE);
-      const a = pinchAnchor.current;
-      const container = containerRef.current;
-      if (container) {
-        const cx = container.clientWidth  / 2;
-        const cy = container.clientHeight / 2;
-        const dmx = a.midX - cx;
-        const dmy = a.midY - cy;
-        const ratio = newScale / a.scale;
-        const newOx = a.offsetX * ratio - dmx * (ratio - 1);
-        const newOy = a.offsetY * ratio - dmy * (ratio - 1);
-        const clamped = clampOffset(newOx, newOy, newScale, activeImageIndexRef.current);
-        scaleRef.current = newScale;
+      // pinch
+      if (pointers.current.size === 2 && pinchAnchor.current) {
+        const pts = Array.from(pointers.current.values());
+        const d = dist2(pts[0], pts[1]);
+        const rawScale =
+          (d / pinchAnchor.current.distance) * pinchAnchor.current.scale;
+        const newScale = clamp(rawScale, 1, MAX_SCALE);
+        const a = pinchAnchor.current;
+        const container = containerRef.current;
+        if (container) {
+          const cx = container.clientWidth / 2;
+          const cy = container.clientHeight / 2;
+          const dmx = a.midX - cx;
+          const dmy = a.midY - cy;
+          const ratio = newScale / a.scale;
+          const newOx = a.offsetX * ratio - dmx * (ratio - 1);
+          const newOy = a.offsetY * ratio - dmy * (ratio - 1);
+          const clamped = clampOffset(
+            newOx,
+            newOy,
+            newScale,
+            activeImageIndexRef.current,
+          );
+          scaleRef.current = newScale;
+          offsetRef.current = clamped;
+          scheduleApply();
+        }
+        return;
+      }
+
+      // pan
+      if (
+        panAnchor.current?.pointerId === e.pointerId &&
+        scaleRef.current > 1
+      ) {
+        const dx = e.clientX - panAnchor.current.startX;
+        const dy = e.clientY - panAnchor.current.startY;
+        const clamped = clampOffset(
+          panAnchor.current.startOffsetX + dx,
+          panAnchor.current.startOffsetY + dy,
+          scaleRef.current,
+          activeImageIndexRef.current,
+        );
         offsetRef.current = clamped;
         scheduleApply();
+        return;
       }
-      return;
-    }
 
-    // pan
-    if (panAnchor.current?.pointerId === e.pointerId && scaleRef.current > 1) {
-      const dx = e.clientX - panAnchor.current.startX;
-      const dy = e.clientY - panAnchor.current.startY;
-      const clamped = clampOffset(
-        panAnchor.current.startOffsetX + dx,
-        panAnchor.current.startOffsetY + dy,
-        scaleRef.current,
-        activeImageIndexRef.current,
-      );
-      offsetRef.current = clamped;
-      scheduleApply();
-      return;
-    }
-
-    // swipe
-    if (swipeAnchor.current && scaleRef.current === 1) {
-      setSwipeDelta(e.clientX - swipeAnchor.current.startX);
-    }
-  }, [clampOffset, scheduleApply]);
+      // swipe
+      if (swipeAnchor.current && scaleRef.current === 1) {
+        setSwipeDelta(e.clientX - swipeAnchor.current.startX);
+      }
+    },
+    [clampOffset, scheduleApply],
+  );
 
   // ── pointer up ─────────────────────────────────────────────────────────────
-  const onPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
+  const onPointerUp = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      try {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      } catch {}
 
-    const swipeDx = swipeAnchor.current ? (e.clientX - swipeAnchor.current.startX) : 0;
-    const wasSwipe = !!swipeAnchor.current && scaleRef.current === 1;
+      const swipeDx = swipeAnchor.current
+        ? e.clientX - swipeAnchor.current.startX
+        : 0;
+      const wasSwipe = !!swipeAnchor.current && scaleRef.current === 1;
 
-    pointers.current.delete(e.pointerId);
-    if (panAnchor.current?.pointerId === e.pointerId) panAnchor.current = null;
+      pointers.current.delete(e.pointerId);
+      if (panAnchor.current?.pointerId === e.pointerId)
+        panAnchor.current = null;
 
-    const remaining = pointers.current.size;
+      const remaining = pointers.current.size;
 
-    // pinch finger lifted — hand off to pan or snap back
-    if (pinchAnchor.current) {
-      if (remaining === 1) {
-        pinchAnchor.current = null;
+      // pinch finger lifted — hand off to pan or snap back
+      if (pinchAnchor.current) {
+        if (remaining === 1) {
+          pinchAnchor.current = null;
+          if (scaleRef.current > 1) {
+            const [id, pt] = Array.from(pointers.current.entries())[0];
+            panAnchor.current = {
+              pointerId: id,
+              startX: pt.x,
+              startY: pt.y,
+              startOffsetX: offsetRef.current.x,
+              startOffsetY: offsetRef.current.y,
+            };
+          }
+        }
+        if (scaleRef.current <= 1.05) resetZoom();
+        setScaleState(scaleRef.current <= 1.05 ? 1 : scaleRef.current);
+        return;
+      }
+
+      if (remaining > 0) return;
+
+      pinchAnchor.current = null;
+
+      // double-tap detection
+      const now = performance.now();
+      const dx = Math.abs(e.clientX - lastTapPos.current.x);
+      const dy = Math.abs(e.clientY - lastTapPos.current.y);
+      const isDoubleTap =
+        now - lastTapTime.current < DOUBLE_TAP_MS &&
+        dx < 20 &&
+        dy < 20 &&
+        !wasSwipe;
+
+      if (isDoubleTap) {
         if (scaleRef.current > 1) {
-          const [id, pt] = Array.from(pointers.current.entries())[0];
-          panAnchor.current = {
-            pointerId: id,
-            startX: pt.x, startY: pt.y,
-            startOffsetX: offsetRef.current.x,
-            startOffsetY: offsetRef.current.y,
-          };
+          resetZoom();
+        } else {
+          zoomTo(ZOOM_IN_SCALE, e.clientX, e.clientY);
+        }
+        lastTapTime.current = 0;
+        swipeAnchor.current = null;
+        setSwipeDelta(0);
+        return;
+      }
+
+      lastTapTime.current = now;
+      lastTapPos.current = { x: e.clientX, y: e.clientY };
+
+      // commit or cancel swipe
+      if (wasSwipe) {
+        swipeAnchor.current = null;
+        setSwipeDelta(0);
+        if (Math.abs(swipeDx) >= SWIPE_THRESHOLD) {
+          const dir = swipeDx < 0 ? 1 : -1;
+          const next = clamp(
+            activeImageIndexRef.current + dir,
+            0,
+            galleryRef.current.length - 1,
+          );
+          if (next !== activeImageIndexRef.current) {
+            resetZoom(activeImageIndexRef.current);
+            setActiveImageIndex(next);
+          }
         }
       }
-      if (scaleRef.current <= 1.05) resetZoom();
-      setScaleState(scaleRef.current <= 1.05 ? 1 : scaleRef.current);
-      return;
-    }
-
-    if (remaining > 0) return;
-
-    pinchAnchor.current = null;
-
-    // double-tap detection
-    const now = performance.now();
-    const dx = Math.abs(e.clientX - lastTapPos.current.x);
-    const dy = Math.abs(e.clientY - lastTapPos.current.y);
-    const isDoubleTap = now - lastTapTime.current < DOUBLE_TAP_MS && dx < 20 && dy < 20 && !wasSwipe;
-
-    if (isDoubleTap) {
-      if (scaleRef.current > 1) {
-        resetZoom();
-      } else {
-        zoomTo(ZOOM_IN_SCALE, e.clientX, e.clientY);
-      }
-      lastTapTime.current = 0;
-      swipeAnchor.current = null;
-      setSwipeDelta(0);
-      return;
-    }
-
-    lastTapTime.current = now;
-    lastTapPos.current = { x: e.clientX, y: e.clientY };
-
-    // commit or cancel swipe
-    if (wasSwipe) {
-      swipeAnchor.current = null;
-      setSwipeDelta(0);
-      if (Math.abs(swipeDx) >= SWIPE_THRESHOLD) {
-        const dir = swipeDx < 0 ? 1 : -1;
-        const next = clamp(activeImageIndexRef.current + dir, 0, galleryRef.current.length - 1);
-        if (next !== activeImageIndexRef.current) {
-          resetZoom(activeImageIndexRef.current);
-          setActiveImageIndex(next);
-        }
-      }
-    }
-  }, [resetZoom, zoomTo]);
+    },
+    [resetZoom, zoomTo],
+  );
 
   if (!addOns || addOns.length === 0) return null;
 
@@ -335,7 +386,11 @@ export function AddOnGallery({ addOns }: Props) {
     <>
       <div role="list" className="flex flex-wrap gap-2">
         {addOns.map((addon, index) => (
-          <div key={addon.name} role="listitem" className="flex flex-col items-center gap-1">
+          <div
+            key={addon.name}
+            role="listitem"
+            className="flex flex-col items-center gap-1"
+          >
             <button
               type="button"
               onClick={() => openViewer(index)}
@@ -355,9 +410,8 @@ export function AddOnGallery({ addOns }: Props) {
       </div>
 
       {activeAddOn && gallery.length > 0 && (
-        <div className="fixed inset-0 z-50 bg-black overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black w-[100vw] overflow-hidden">
           <div className="relative w-full h-full bg-black">
-
             <button
               type="button"
               onClick={closeViewer}
@@ -367,7 +421,10 @@ export function AddOnGallery({ addOns }: Props) {
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path
                   d="M1 13L7 7L13 13M13 1L6.99886 7L1 1"
-                  stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </button>
@@ -378,12 +435,21 @@ export function AddOnGallery({ addOns }: Props) {
                   <button
                     key={src}
                     type="button"
-                    onClick={() => { resetZoom(); setActiveImageIndex(i); }}
+                    onClick={() => {
+                      resetZoom();
+                      setActiveImageIndex(i);
+                    }}
                     className={`h-14 w-14 flex-none overflow-hidden rounded-xl border-2 transition-colors ${
-                      i === activeImageIndex ? "border-[#009DFF]" : "border-transparent opacity-60"
+                      i === activeImageIndex
+                        ? "border-[#009DFF]"
+                        : "border-transparent opacity-60"
                     }`}
                   >
-                    <img src={src} alt={`${activeAddOn.name} thumbnail ${i + 1}`} className="h-full w-full" />
+                    <img
+                      src={src}
+                      alt={`${activeAddOn.name} thumbnail ${i + 1}`}
+                      className="h-full w-full"
+                    />
                   </button>
                 ))}
               </div>
@@ -402,7 +468,10 @@ export function AddOnGallery({ addOns }: Props) {
                 className="absolute inset-0 flex"
                 style={{
                   transform: `translateX(calc(${-activeImageIndex * 100}% + ${swipeDelta}px))`,
-                  transition: swipeDelta === 0 ? "transform 0.28s cubic-bezier(.32,.72,0,1)" : "none",
+                  transition:
+                    swipeDelta === 0
+                      ? "transform 0.28s cubic-bezier(.32,.72,0,1)"
+                      : "none",
                   willChange: "transform",
                 }}
               >
@@ -413,12 +482,18 @@ export function AddOnGallery({ addOns }: Props) {
                     style={{ paddingBottom: gallery.length > 1 ? "80px" : 0 }}
                   >
                     <img
-                      ref={el => { if (el) imgRefs.current.set(i, el); else imgRefs.current.delete(i); }}
+                      ref={(el) => {
+                        if (el) imgRefs.current.set(i, el);
+                        else imgRefs.current.delete(i);
+                      }}
                       src={src}
                       alt={`${activeAddOn.name} preview ${i + 1}`}
                       draggable={false}
-                      className="max-h-full max-w-full object-contain pointer-events-none"
-                      style={{ transformOrigin: "center center", willChange: "transform" }}
+                      className="max-h-full max-w-full pointer-events-none"
+                      style={{
+                        transformOrigin: "center center",
+                        willChange: "transform",
+                      }}
                     />
                   </div>
                 ))}
