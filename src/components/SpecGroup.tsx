@@ -22,11 +22,11 @@ export default function SpecGroup({ group }: SpecGroupProps) {
 
       <div>
         {group.features.map((feat, i) => (
-          <div key={i} className="flex  gap-4 mb-3  items-start">
+          <div key={i} className="flex gap-4 mb-6 items-start">
             <span className="text-lg sm:text-xl md:text-[22px] lg:text-2xl font-bold text-[#656565] leading-relaxed w-1/4">
               {feat.name}
             </span>
-            <div className="w-3/4 flex flex-col gap-2 ">
+            <div className="w-3/4 flex flex-col gap-2 mt-1 ">
               {feat.values.map((value, j) => (
                 <div
                   key={`${feat.name}-${i}-${j}`}

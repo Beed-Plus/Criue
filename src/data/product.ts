@@ -37,6 +37,10 @@ import ringMouse2 from "../assets/images/ring_mouse_2.png";
 import ringMouse3 from "../assets/images/ring_mouse_3.png";
 import ringMouse4 from "../assets/images/ring_mouse_4.png";
 import ringMouse5 from "../assets/images/ring_mouse_5.png";
+import mouse1 from "../assets/images/oneScreen_mouse.png";
+import mouse2 from "../assets/images/oneScreen_mouse_1.png";
+import mouse3 from "../assets/images/oneScreen_mouse_2.png";
+import mouse4 from "../assets/images/oneScreen_mouse_3.png";
 import speaker from "../assets/images/speaker.png";
 import speaker1 from "../assets/images/speaker_1.png";
 import speaker2 from "../assets/images/speaker_2.png";
@@ -115,9 +119,9 @@ export const PRODUCTS: Product[] = [
         gallery: [remote1, remote2],
       },
       {
-        name: "Ring Mouse",
-        image: mouse,
-        gallery: [ringMouse1, ringMouse2, ringMouse3, ringMouse4, ringMouse5],
+        name: "Mouse",
+        image: mouse1,
+        gallery: [mouse1, mouse2, mouse3, mouse4],
       },
       {
         name: "Speaker",
@@ -169,7 +173,7 @@ export const PRODUCTS: Product[] = [
             name: "Other",
             values: [
               "DC 12v - Option power cord on the base, it for floor standing type only.",
-              "Power Switch - One button on the back of",
+              "Power Switch - One button on the back of the screen",
               "Gravity Sensor - Support",
               "Speaker - 4Ω5W*2",
               "Built - in camera - 13MP",

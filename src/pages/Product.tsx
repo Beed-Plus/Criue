@@ -86,7 +86,8 @@ export default function Product() {
           </p>
 
           <Link
-            to={"https://criue.bumpa.shop"}
+            to={"https://wa.link/mves25"}
+            target="_blank"
             rel="noopener noreferrer"
             className=" border-[0.85px] border-[#000] rounded-[27px] lg:rounded-[32px] py-2 lg:py-3 px-6 shadow-[0_0px_24px_rgb(0,0,0,0.1)] min-w-37 lg:min-w-64 justify-center text-[13px] sm:text-base md:text-lg lg:text-xl  font-medium flex items-center gap-2"
           >
